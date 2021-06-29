@@ -1,1 +1,1 @@
-declare module 'gtfs' { "importGtfs": any }
+declare module 'gtfs'
