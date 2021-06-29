@@ -1,34 +1,34 @@
 import { Request, Response } from 'express';
 import express from 'express';
 
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { graphqlHTTP } from 'express-graphql';
+import { typeDefs } from './schemas/TypeDefs'
+import { resolvers } from './resolvers'
 
 const app = express();
 const port = process.env.PORT || '8000';
 
+// API working check
 
-interface HelloResponse {
-    hello: string;
-}
-
-type HelloBuilder = (name: string) => HelloResponse;
-
-const helloBuilder: HelloBuilder = name => ({ hello: name });
-
+// Endpoint - Root
 export const rootHandler = (_req: Request, res: Response) => {
     return res.send('API is working 🤓');
 };
 
-export const helloHandler = (req: Request, res: Response) => {
-    const { params } = req;
-    const { name = 'World' } = params;
-    const response = helloBuilder(name);
-
-    return res.json(response);
-};
-
-
 app.get('/', rootHandler);
-app.get('/hello/:name', helloHandler);
+
+
+// Endpoint - /graphql
+export const executableSchema = makeExecutableSchema({
+    typeDefs,
+    resolvers
+});
+app.use('/graphql', graphqlHTTP({
+    schema: executableSchema,
+    graphiql: true,
+}));
+
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
